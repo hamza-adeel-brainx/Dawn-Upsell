@@ -196,7 +196,33 @@ cart-drawer-items {
   overflow: auto;
   flex: 1;
 }
+.drawer__upsell-inner{
 
+  display: none;
+  gap : 20px;
+ 
+}
+.drawer__upsell-inner-content{
+  flex: 70%
+
+}
+.drawer__upsell-inner-content h3{
+  margin-bottom: 7px;
+  margin-top: 0px;
+}
+.drawer__upsell-inner .product-media-container{
+max-width: 30% !important; 
+}
+.drawer__upsell-inner-content .price-item{
+  font-size: 1.4rem;
+  word-break: break-word;
+  color: rgba(18, 18, 18, 0.75);
+  margin-bottom: 14px !important;
+
+}
+.drawer__upsell-inner:nth-of-type(1) , .drawer__upsell-inner:nth-of-type(2) {
+    display: flex;
+}
 @media screen and (max-height: 650px) {
   cart-drawer-items {
     overflow: visible;
