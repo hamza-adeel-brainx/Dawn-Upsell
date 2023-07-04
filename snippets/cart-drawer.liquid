@@ -364,6 +364,7 @@
 
         <div class="Upsell-items">
           {% if cart != empty %}
+            <h2 class="upsell-heading">Upsell Products</h2>
             {% liquid
               assign upsellProductsList = ''
               assign upsellProductCount = 0
@@ -372,7 +373,6 @@
             {% for collectionHandle in cart_items_collection %}
               {% assign collection = collections[collectionHandle] %}
               {% if collection.metafields.custom.upsell_list %}
-                <h2 class="upsell-heading">Upsell Products</h2>
                 {% assign productsUpsells = collection.metafields.custom.upsell_list.value %}
                 {% for productsUpsell in productsUpsells limit: 2 %}
                   {% unless cart_items contains productsUpsell.id or upsellProductsList contains productsUpsell.id %}
@@ -387,6 +387,7 @@
                       (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | times: media_width | divided_by: 1 | round }}px, (min-width: 990px) calc({{ media_width | times: 100 | divided_by: 1 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw / {{ 1 }} - 4rem)
                     {%- endcapture -%}
                     {% assign constrain_to_viewport = true %}
+
                     <div class="drawer__upsell-inner">
                       <div
                         class="product-media-container media-type-{{ productsUpsell.featured_media.media_type }} media-fit-{{ media_fit }} global-media-settings gradient{% if constrain_to_viewport %} constrain-height{% endif %}"
