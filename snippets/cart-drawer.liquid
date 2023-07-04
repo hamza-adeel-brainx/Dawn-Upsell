@@ -364,7 +364,6 @@
 
         <div class="Upsell-items">
           {% if cart != empty %}
-            <h2 class="upsell-heading">Upsell Products</h2>
             {% liquid
               assign upsellProductsList = ''
               assign upsellProductCount = 0
@@ -373,6 +372,7 @@
             {% for collectionHandle in cart_items_collection %}
               {% assign collection = collections[collectionHandle] %}
               {% if collection.metafields.custom.upsell_list %}
+                <h2 class="upsell-heading">Upsell Products</h2>
                 {% assign productsUpsells = collection.metafields.custom.upsell_list.value %}
                 {% for productsUpsell in productsUpsells limit: 2 %}
                   {% unless cart_items contains productsUpsell.id or upsellProductsList contains productsUpsell.id %}
