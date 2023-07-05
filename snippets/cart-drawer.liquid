@@ -363,12 +363,12 @@
         </form>
 
         <div class="Upsell-items">
-          {% if cart != empty %}
-            <h2 class="upsell-heading">Upsell Products</h2>
+          {% if cart_items_collection.size > 1 %}
             {% liquid
               assign upsellProductsList = ''
               assign upsellProductCount = 0
             %}
+
             {% assign cart_items_collection = cart_items_collection | split: ',' %}
             {% for collectionHandle in cart_items_collection %}
               {% assign collection = collections[collectionHandle] %}
@@ -383,6 +383,9 @@
                       assign upsellProductsList = upsellProductsList | append: product.id
                       assign upsellProductCount = upsellProductCount | plus: 1
                     %}
+                    {% if upsellProductCount == 1 %}
+                      <h2 class="upsell-heading">Upsell Products</h2>
+                    {% endif %}
                     {%- capture sizes -%}
                       (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | times: media_width | divided_by: 1 | round }}px, (min-width: 990px) calc({{ media_width | times: 100 | divided_by: 1 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw / {{ 1 }} - 4rem)
                     {%- endcapture -%}
