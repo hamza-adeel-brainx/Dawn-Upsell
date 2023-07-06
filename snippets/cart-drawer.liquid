@@ -318,6 +318,8 @@
                             <cart-remove-button
                               id="CartDrawer-Remove-{{ item.index | plus: 1 }}"
                               data-index="{{ item.index | plus: 1 }}"
+                              data-handle="{{ item.product.handle}}"
+                              data-id="{{ item.id}}"
                             >
                               <button
                                 type="button"
@@ -380,7 +382,7 @@
                       if upsellProductCount != 0
                         assign upsellProductsList = upsellProductsList | append: ','
                       endif
-                      assign upsellProductsList = upsellProductsList | append: product.id
+                      assign upsellProductsList = upsellProductsList | append: productsUpsell.id
                       assign upsellProductCount = upsellProductCount | plus: 1
                     %}
                     {% if upsellProductCount == 1 %}
