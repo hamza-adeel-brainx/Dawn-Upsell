@@ -8,12 +8,6 @@
     {% endunless %}
   {% endif %}
 {% endfor %}
-{% comment %}
-  {% assign cart_items = cart_items | append: item.product.id %}
-    {% unless forloop.last %}
-      {% assign cart_items = cart_items | append: ',' %}
-  {% endunless %}
-{% endcomment %}
 
 {% if cart_items_collection.size > 1 %}
   {% liquid

@@ -40,7 +40,7 @@ class CartRemoveButton extends HTMLElement {
                         // delTemp.click();
                         cartItems.updateQuantity("", 0, "", delTemp.dataset.id);
                         console.log("Sdsadasdas");
-                      }, 100*index);
+                      }, 400*index);
                     }
                   });
                   
@@ -142,10 +142,7 @@ let body;
     if(line)
     {
        body = JSON.stringify({
-        line,
-        quantity,
-        sections: this.getSectionsToRender().map((section) => section.section),
-        sections_url: window.location.pathname,
+      updates: update
       });
     }
     else if(id)
@@ -291,3 +288,8 @@ if (!customElements.get('cart-note')) {
     }
   );
 }
+
+
+
+
+
