@@ -142,7 +142,10 @@ let body;
     if(line)
     {
        body = JSON.stringify({
-      updates: update
+        line,
+        quantity,
+        sections: this.getSectionsToRender().map((section) => section.section),
+        sections_url: window.location.pathname,
       });
     }
     else if(id)
