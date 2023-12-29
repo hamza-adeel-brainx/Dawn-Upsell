@@ -6,6 +6,58 @@ class CartRemoveButton extends HTMLElement {
       event.preventDefault();
       const cartItems = this.closest('cart-items') || this.closest('cart-drawer-items');
       cartItems.updateQuantity(this.dataset.index, 0);
+            
+      const cartItem = this.closest('.cart-item')
+      const productLink = cartItem.querySelector('.cart-item__name').getAttribute("href");
+
+           let updatedLink=productLink.split('?')[0]+"?view=random-upsell";
+            var link = `https://hamza-theme-store.myshopify.com${updatedLink}`;
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', link, true);
+            // let upsellProducts="";
+            xhr.onload = async function() {
+              if (xhr.status === 200) {
+                const response = xhr.responseText;
+                const upsellProducts = response.replace(/\s+/g, '').split(',');
+              
+                const cartResponse = await fetch(`${window.Shopify.routes.root}cart.js`, {
+                  method: 'GET'
+                });
+                const cartData = await cartResponse.json();
+              
+                console.log(cartData);
+              
+                if (cartData.items.length >= 1) {
+                  cartData.items.forEach((item, index) => {
+                    if (upsellProducts.includes(item.handle)) {
+                      console.log("Match found");
+                  
+                      let delTemp = document.querySelector(`cart-remove-button[data-handle=${item.handle}]`);
+                      console.log(delTemp);
+                  
+                      setTimeout(() => {
+                        // delTemp.click();
+                        cartItems.updateQuantity("", 0, "", delTemp.dataset.id);
+                        console.log("Sdsadasdas");
+                      }, 400*index);
+                    }
+                  });
+                  
+                }
+              }
+              else {
+                console.log('Error:', xhr.status);
+              }
+            };
+            
+            xhr.onerror = function() {
+              console.log('Request failed');
+            };
+            
+            xhr.send();
+            // console.log(upsellProducts)
+            
     });
   }
 }
@@ -84,18 +136,33 @@ class CartItems extends HTMLElement {
     ];
   }
 
-  updateQuantity(line, quantity, name) {
+  updateQuantity(line, quantity, name, id ) {
     this.enableLoading(line);
+let body;
+    if(line)
+    {
+       body = JSON.stringify({
+        line,
+        quantity,
+        sections: this.getSectionsToRender().map((section) => section.section),
+        sections_url: window.location.pathname,
+      });
+    }
+    else if(id)
+    {
+body=JSON.stringify({
+  id,
+  quantity,
+  sections: this.getSectionsToRender().map((section) => section.section),
+  sections_url: window.location.pathname,
+});
 
-    const body = JSON.stringify({
-      line,
-      quantity,
-      sections: this.getSectionsToRender().map((section) => section.section),
-      sections_url: window.location.pathname,
-    });
+    }
+    console.log(body,"body");
 
     fetch(`${routes.cart_change_url}`, { ...fetchConfig(), ...{ body } })
       .then((response) => {
+        // console.log("this",line);
         return response.text();
       })
       .then((state) => {
@@ -224,3 +291,8 @@ if (!customElements.get('cart-note')) {
     }
   );
 }
+
+
+
+
+

@@ -109,7 +109,23 @@
                   </thead>
 
                   <tbody role="rowgroup">
+                    {% assign cart_items = '' %}
+                    {% assign cart_items_collection = '' %}
+                    {% assign cartItemsLoop = 0 %}
                     {%- for item in cart.items -%}
+                      {% assign cart_items = cart_items | append: item.product.id %}
+                      {% unless forloop.last %}
+                        {% assign cart_items = cart_items | append: ',' %}
+                      {% endunless %}
+                      {% for collection in item.product.collections %}
+                        {% if collection.metafields.custom.upsell_list %}
+                          {% if cartItemsLoop != 0 %}
+                            {% assign cart_items_collection = cart_items_collection | append: ',' %}
+                          {% endif %}
+                          {% assign cart_items_collection = cart_items_collection | append: collection.handle %}
+                          {% assign cartItemsLoop = cartItemsLoop | plus: 1 %}
+                        {% endif %}
+                      {% endfor %}
                       <tr id="CartDrawer-Item-{{ item.index | plus: 1 }}" class="cart-item" role="row">
                         <td class="cart-item__media" role="cell" headers="CartDrawer-ColumnProductImage">
                           {% if item.image %}
@@ -306,6 +322,8 @@
                             <cart-remove-button
                               id="CartDrawer-Remove-{{ item.index | plus: 1 }}"
                               data-index="{{ item.index | plus: 1 }}"
+                              data-handle="{{ item.product.handle}}"
+                              data-id="{{ item.id}}"
                             >
                               <button
                                 type="button"
@@ -349,6 +367,76 @@
           </div>
           <div id="CartDrawer-CartErrors" role="alert"></div>
         </form>
+
+        <div class="Upsell-items">
+          {% liquid
+            assign upsellProductsList = ''
+            assign upsellProductCount = 0
+          %}
+
+          {% assign cart_items_collection = cart_items_collection | split: ',' %}
+          {% for collectionHandle in cart_items_collection %}
+            {% assign collection = collections[collectionHandle] %}
+            {% assign productsUpsells = collection.metafields.custom.upsell_list.value %}
+            {% for productsUpsell in productsUpsells limit: 2 %}
+              {% unless cart_items contains productsUpsell.id or upsellProductsList contains productsUpsell.id %}
+                {% liquid
+                  if upsellProductCount != 0
+                    assign upsellProductsList = upsellProductsList | append: ','
+                  endif
+                  assign upsellProductsList = upsellProductsList | append: productsUpsell.id
+                  assign upsellProductCount = upsellProductCount | plus: 1
+                %}
+                {% if upsellProductCount == 1 %}
+                  <h2 class="upsell-heading">Upsell Products</h2>
+                {% endif %}
+                {%- capture sizes -%}
+                      (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | times: media_width | divided_by: 1 | round }}px, (min-width: 990px) calc({{ media_width | times: 100 | divided_by: 1 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw / {{ 1 }} - 4rem)
+                    {%- endcapture -%}
+                {% assign constrain_to_viewport = true %}
+
+                <div class="drawer__upsell-inner">
+                  <div
+                    class="product-media-container media-type-{{ productsUpsell.featured_media.media_type }} media-fit-{{ media_fit }} global-media-settings gradient{% if constrain_to_viewport %} constrain-height{% endif %}"
+                    style="--ratio: {{ productsUpsell.featured_media.aspect_ratio | default: 1.0 }}; --preview-ratio: {{ productsUpsell.featured_media.preview_image.aspect_ratio | default: 1.0 }};"
+                  >
+                    <div class="product__media media media--transparent">
+                      {{
+                        productsUpsell.featured_media
+                        | image_url: width: 1946
+                        | image_tag:
+                          class: image_class,
+                          loading: lazy,
+                          sizes: sizes,
+                          widths: '246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946'
+                      }}
+                    </div>
+                  </div>
+                  <div class="drawer__upsell-inner-content">
+                    <div class="cart-item__name h4 break" {{ block.shopify_attributes }}>
+                      <h3>{{ productsUpsell.title | escape }}</h3>
+                      {%- render 'price',
+                        product: productsUpsell,
+                        use_variant: true,
+                        show_badges: true,
+                        price_class: 'price--large'
+                      -%}
+                    </div>
+                    {%- assign product_form_id = 'product-form-' | append: product.id -%}
+
+                    {%- render 'buy-buttons',
+                      block: 'buy_buttons',
+                      product: productsUpsell,
+                      product_form_id: product_form_id,
+                      section_id: productsUpsell.id,
+                      show_pickup_availability: true
+                    -%}
+                  </div>
+                </div>
+              {% endunless %}
+            {% endfor %}
+          {% endfor %}
+        </div>
       </cart-drawer-items>
       <div class="drawer__footer">
         {%- if settings.show_cart_note -%}
